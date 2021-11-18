@@ -13,8 +13,7 @@ This version will include the full lexer when finished.
 
 public static class MathParser
 {
-
-    static readonly Dictionary<char, Func<float, float, float>> operatorExpressions = new Dictionary<char, Func<float, float, float>>()
+    static readonly Dictionary<char, Func<float, float, float>> operatorExpressions = new Dictionary<char, Func<float, float, float>>
     {
         {'^', (x, z) => (float) Math.Pow(x,z)},
         {'*', (x, z) => x*z},
@@ -27,7 +26,7 @@ public static class MathParser
     {
         '(',')',','
     };
-    static readonly Dictionary<string, Func<float, float>> unaryFuncExpressions = new Dictionary<string, Func<float, float>>()
+    static readonly Dictionary<string, Func<float, float>> unaryFuncExpressions = new Dictionary<string, Func<float, float>>
     {
         {"sin", x => (float) Math.Sin(x)},
         {"cos", x => (float) Math.Cos(x)},
@@ -53,7 +52,7 @@ public static class MathParser
     {
         "x","z","t"
     };
-    static readonly Dictionary<string, Func<float, float, float>> binaryFuncExpressions = new Dictionary<string, Func<float, float, float>>()
+    static readonly Dictionary<string, Func<float, float, float>> binaryFuncExpressions = new Dictionary<string, Func<float, float, float>>
     {
         {"log", (x, z) => (float) Math.Log(x, z)},
         {"atan2", (x, z) => (float) Math.Atan2(x, z)},
@@ -109,10 +108,10 @@ public static class MathParser
                     identifier = "?";
                 }
                 else
-                    throw new System.ArgumentException("Token of type Delimiter must be either a parenthesis or a comma.", "CharValue");
+                    throw new ArgumentException("Token of type Delimiter must be either a parenthesis or a comma.", "CharValue");
             }
             else
-                throw new System.ArgumentException($"Token type {type} does not hold a char.", "tType");
+                throw new ArgumentException($"Token type {type} does not hold a char.", "tType");
         }
 
         public Token(TokenType tType, int IntValue)
@@ -127,7 +126,7 @@ public static class MathParser
                 identifier = "?";
             }
             else
-                throw new System.ArgumentException();
+                throw new ArgumentException();
         }
 
         public Token(TokenType tType, float FloatValue)
@@ -142,7 +141,7 @@ public static class MathParser
                 identifier = "?";
             }
             else
-                throw new System.ArgumentException();
+                throw new ArgumentException();
         }
 
         public Token(TokenType tType, string IdentifierValue)
@@ -157,7 +156,7 @@ public static class MathParser
                 identifier = IdentifierValue; // we're going to handle keyword matching in the lexer
             }
             else
-                throw new System.ArgumentException($"Token type {type} does not hold a string.", "tType");
+                throw new ArgumentException($"Token type {type} does not hold a string.", "tType");
         }
     }
 
@@ -191,7 +190,7 @@ public static class MathParser
                 continue;
             }
             else
-                throw new System.ArgumentException("Invalid or misplaced character found in expression.", "mathExpression");
+                throw new ArgumentException("Invalid or misplaced character found in expression.", "mathExpression");
             tokenStream.Enqueue(token);
         }
         return tokenStream;
@@ -221,7 +220,7 @@ public static class MathParser
             {
                 textStream.Dequeue();
                 if (textStream.Count == 0)
-                    throw new System.ArgumentException("Expression ended at decimal point", "textStream");
+                    throw new ArgumentException("Expression ended at decimal point", "textStream");
 
                 textStream.TryPeek(out currChar);
                 if (currChar >= '0' && currChar <= '9')
@@ -229,13 +228,13 @@ public static class MathParser
                     tokenString += '.' + ReadDigits(textStream);
                     textStream.TryPeek(out currChar);
                     if (currChar == '.')
-                        throw new System.ArgumentException("Improperly placed decimal point found after floating point number", "textStream");
+                        throw new ArgumentException("Improperly placed decimal point found after floating point number", "textStream");
 
                     float floatValue = float.Parse(tokenString);
                     return new Token(TokenType.Float, floatValue);
                 }
                 else
-                    throw new System.ArgumentException("Invalid character found after decimal point.", "textStream");
+                    throw new ArgumentException("Invalid character found after decimal point.", "textStream");
             }
         }
         // if we make it here, must be an int, end of token
@@ -258,7 +257,7 @@ public static class MathParser
         if (keywords.Contains(tokenString))
             return new Token(TokenType.Identifier, tokenString);
         else
-            throw new System.ArgumentException($"Invalid identifier {tokenString}", "tokenString");
+            throw new ArgumentException($"Invalid identifier {tokenString}", "tokenString");
     }
     public class ExpressionAST
     {
@@ -387,63 +386,27 @@ public static class MathParser
                 }
             }
         }
-        /******
-         * A bottom-up approach requires in general a list of root nodes
-         * as disjoint subtrees are built up into larger portions of the final tree.
-         * A top-down approach would only necessitate a single root node at every stage.
-         ******/
-        List<TreeNode> rootNodes;
-        public ExpressionAST()
-        {
-            rootNodes = new List<TreeNode>();
-        }
-        // attach consecutive nodes starting at position "position" in rootNodes to a new root node with token "value" 
-        public void CombineConsecutiveNodes(Token value, int position)
-        {
-            if (position >= rootNodes.Count)
-                throw new ArgumentException($"Index {position} exceeds bounds of node list.", "position");
 
-            TreeNode newRoot = new TreeNode(value, rootNodes[position], rootNodes[position + 1]);
-            rootNodes[position] = newRoot;
-            rootNodes.RemoveAt(position + 1);
-        }
-        public ExpressionAST Merge(Token value, ExpressionAST expression)
+        TreeNode root;
+        public ExpressionAST(Token value)
         {
-            if (this.rootNodes.Count != 1 || expression.rootNodes.Count != 1)
-                throw new ArgumentException("Merged expressions must have singleton node lists");
-            ExpressionAST mergedExpression = new ExpressionAST();
-            TreeNode newRoot = new TreeNode(value, this.rootNodes[0], expression.rootNodes[0]);
-            mergedExpression.rootNodes.Add(newRoot);
-            return mergedExpression;
+            root = new TreeNode(value);
         }
-        public void AddUnaryNode(Token value, int position)
+        public ExpressionAST(Token value, ExpressionAST child)
         {
-            if (position >= rootNodes.Count)
-                throw new ArgumentException($"Index {position} exceeds bounds of node list.", "position");
-
-            TreeNode newRoot = new TreeNode(value, rootNodes[position]);
-            rootNodes[position] = newRoot;
+            root = new TreeNode(value, child.root);
         }
-        public void PushToken(Token value)
+        public ExpressionAST(Token value , ExpressionAST child1, ExpressionAST child2)
         {
-            TreeNode node = new TreeNode(value);
-            rootNodes.Add(node);
+            root = new TreeNode(value, child1.root, child2.root);
         }
         public float ASTeval(float x, float z)
         {
-            return rootNodes.Count switch
-            {
-                1 => rootNodes[0].NodeEval(x, z),
-                _ => throw new InvalidOperationException("Tree must have a unique root node."),
-            };
+            return root.NodeEval(x, z);
         }
         public float ASTeval(float x, float z, float t)
         {
-            return rootNodes.Count switch
-            {
-                1 => rootNodes[0].NodeEval(x, z, t),
-                _ => throw new InvalidOperationException("Tree must have a unique root node."),
-            };
+            return root.NodeEval(x, z, t);
         }
     }
 }
