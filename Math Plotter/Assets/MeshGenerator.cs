@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using static System.Math;
+using static MathParser;
 
 [RequireComponent(typeof(MeshFilter))]
 public class MeshGenerator : MonoBehaviour {
@@ -26,7 +27,38 @@ public class MeshGenerator : MonoBehaviour {
         GetComponent<MeshFilter>().mesh = mesh;
  
         CreateShape();
-        UpdateMesh();  
+        UpdateMesh();
+
+        Debug.Log("Hello, World!");
+
+        Queue<Token> tokenStream = LexExpression("3.14*sin(x^2+z^2)");
+        foreach (Token t in tokenStream)
+        {
+            switch (t.type)
+            {
+                case TokenType.Int:
+                    Debug.Log($"{t.intValue}, Int");
+                    break;
+                case TokenType.Float:
+                    Debug.Log($"{t.floatValue}, Float");
+                    break;
+                case TokenType.Operator:
+                    Debug.Log($"{t.opValue}, Operator");
+                    break;
+                case TokenType.Identifier:
+                    Debug.Log($"{t.identifier}, Identifier");
+                    break;
+                case TokenType.Delimiter:
+                    Debug.Log($"{t.delimiter}, Delimiter");
+                    break;
+            }
+        }
+
+        ExpressionAST expression = ParseExpression("3.14*sin(x^2 + z^2)");
+        float val = expression.ASTeval(1, 1);
+        Debug.Log($"{val}");
+        //Debug.Log("Here's the expression tree:");
+        //expression.PrintTree();
     }
 
     void CreateShape()

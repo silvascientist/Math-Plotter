@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ExtensionMethods;
+using UnityEngine;
 
 /*****
 0.1.0
@@ -19,7 +20,7 @@ public static class MathParser
         {'*', (x, z) => x*z},
         {'/', (x, z) => x/z},
         {'+', (x, z) => x + z},
-        {'-', (x, z) => x - z} 
+        {'-', (x, z) => x - z}
     };
     static readonly char[] operators = operatorExpressions.Keys.ToArray();
     static readonly char[] delimiters = new char[]
@@ -143,7 +144,6 @@ public static class MathParser
             else
                 throw new ArgumentException();
         }
-
         public Token(TokenType tType, string IdentifierValue)
         {
             type = tType;
@@ -276,22 +276,23 @@ public static class MathParser
             public TreeNode(Token value)
             {
                 if (value.type == TokenType.Identifier)
+                {
                     if (!vars.Contains(value.identifier))
-                        throw new ArgumentException("A leaf node must contain either a numeric value or a variable identifier.", "value");
-                    else if (value.type != TokenType.Int && value.type != TokenType.Float)
-                        throw new ArgumentException("A leaf node must contain either a numeric value or a variable identifier.", "value");
-
+                        throw new ArgumentException($"Identifier {value.identifier} is not a valid variable name", "value");
+                }
+                else if (value.type != TokenType.Int && value.type != TokenType.Float)
+                    throw new ArgumentException($"A leaf node may not hold a token of type {value.type}.", "value");
                 this.Token = value;
                 this.Operands = new List<TreeNode>();
             }
             public TreeNode(Token function, TreeNode operand)
             {
-                if (function.type == TokenType.Identifier)
+                if (function.type != TokenType.Identifier)
                     throw new ArgumentException("An internal node must have an identifier as its root token.", "function");
                 else if (!unaryFunctions.Contains(function.identifier))
                     throw new ArgumentException($"{function} is not a supported unary function.", "function");
 
-                this.Token = Token;
+                this.Token = function;
                 this.Operands = new List<TreeNode> { operand };
             }
             public TreeNode(Token function, TreeNode operand1, TreeNode operand2)
@@ -304,16 +305,19 @@ public static class MathParser
                     else if (!unaryFunctions.Contains(function.identifier) && !operators.Contains(function.identifier[0]))
                         throw new ArgumentException($"{function} is not a supported unary function", "function");
 
-                this.Token = Token;
+                this.Token = function;
                 this.Operands = new List<TreeNode> { operand1, operand2 };
+
             }
             public float NodeEval(float x, float z)
             {
+                Debug.Log($"{this.Token.type}");
+                Debug.Log($"{this.Arity}");
                 InvalidOperationException invalidToken = new InvalidOperationException($"Token type {this.Token.type} is not valid for a node of arity {Arity}.");
-                switch (Arity)
+                switch (this.Arity)
                 {
                     case 0:
-                        Token value = this.Token;
+                        Token value = Token;
                         return value.type switch
                         {
                             TokenType.Int => value.intValue,
@@ -328,16 +332,20 @@ public static class MathParser
                             _ => throw invalidToken,
                         };
                     case 1:
+                        Debug.Log($"{this.Token.floatValue}");
                         Func<float, float> function = unaryFuncExpressions[this.Token.identifier];
                         return function(Operands[0].NodeEval(x, z));
                     case 2:
                         switch (this.Token.type)
                         {
                             case TokenType.Operator:
-                                Func<float, float, float> op = operatorExpressions[this.Token.opValue];
-                                return op(Operands[0].NodeEval(x, z), Operands[1].NodeEval(x, z));
+                                Func<float, float, float> op = operatorExpressions[Token.opValue];
+                                Debug.Log($"{Operands[0].Arity}");
+                                float operand1 = Operands[0].NodeEval(x, z);
+                                float operand2 = Operands[1].NodeEval(x, z);
+                                return op(operand1, operand2);
                             case TokenType.Identifier:
-                                Func<float, float, float> binaryFunction = binaryFuncExpressions[this.Token.identifier];
+                                Func<float, float, float> binaryFunction = binaryFuncExpressions[Token.identifier];
                                 return binaryFunction(Operands[0].NodeEval(x, z), Operands[1].NodeEval(x, z));
                             default:
                                 throw invalidToken;
@@ -385,9 +393,28 @@ public static class MathParser
                         throw new InvalidOperationException($"Invalid state: {this} has too many leaves for an expression node. You should do an analysis to determine how this state was achieved.");
                 }
             }
+            public void PrintSubTree()
+            {
+                foreach (TreeNode node in Operands)
+                    {
+                    Token t = node.Token;
+                    dynamic val = t.type switch
+                    {
+                        TokenType.Operator => t.opValue,
+                        TokenType.Int => t.intValue,
+                        TokenType.Float => t.floatValue,
+                        TokenType.Delimiter => t.delimiter,
+                        _ => t.identifier
+                    };
+                    Debug.Log($"{val}, {t.type}");
+                }
+                foreach (TreeNode node in Operands)
+                    node.PrintSubTree();
+            }
         }
 
         TreeNode root;
+        public Token rootToken => root.Token;
         public ExpressionAST(Token value)
         {
             root = new TreeNode(value);
@@ -396,7 +423,7 @@ public static class MathParser
         {
             root = new TreeNode(value, child.root);
         }
-        public ExpressionAST(Token value , ExpressionAST child1, ExpressionAST child2)
+        public ExpressionAST(Token value, ExpressionAST child1, ExpressionAST child2)
         {
             root = new TreeNode(value, child1.root, child2.root);
         }
@@ -408,5 +435,177 @@ public static class MathParser
         {
             return root.NodeEval(x, z, t);
         }
+        public void PrintTree()
+        {
+            Token t = root.Token;
+            dynamic val = t.type switch
+            {
+                TokenType.Operator => t.opValue,
+                TokenType.Int => t.intValue,
+                TokenType.Float => t.floatValue,
+                TokenType.Delimiter => t.delimiter, 
+                _ => t.identifier
+            };
+            Debug.Log($"{val}, {t.type}");
+            root.PrintSubTree();
+        }
+    }
+
+    static ExpressionAST ParseTerm(Queue<Token> tokenStream)
+    {
+        Token currToken = tokenStream.Peek();
+        switch (currToken.type)
+        {
+            case TokenType.Identifier:
+                if (vars.Contains(currToken.identifier))
+                {
+                    tokenStream.Dequeue();
+                    return new ExpressionAST(currToken);
+                }
+                else
+                    return ParseFunction(tokenStream);
+
+            case TokenType.Int:
+                tokenStream.Dequeue();
+                return new ExpressionAST(currToken);
+
+            case TokenType.Float:
+                tokenStream.Dequeue();
+                return new ExpressionAST(currToken);
+
+            case TokenType.Delimiter:
+                return ParseParenthetical(tokenStream);
+
+            default: // must be operator
+                throw new ArgumentException("Extraneous operator found.", "tokenStream");
+        }
+    }
+    static ExpressionAST ParseFunction(Queue<Token> tokenStream)
+    {
+        Token functionToken = tokenStream.Dequeue();
+        string functionIdentifier = functionToken.identifier;
+        if (functionToken.type != TokenType.Identifier)
+            throw new ArgumentException("Initial token of a function expression must be an identifier", "tokenStream");
+        else if (unaryFunctions.Contains(functionIdentifier))
+        {
+            ExpressionAST argumentTree = ParseParenthetical(tokenStream);
+            return new ExpressionAST(functionToken, argumentTree);
+        }
+        else if (binaryFunctions.Contains(functionIdentifier))
+        {
+            switch (tokenStream.Dequeue())
+            {
+                case {delimiter: '('}:
+                    ExpressionAST argument1 = ParseSum(tokenStream);
+                    Token comma = tokenStream.Dequeue();
+                    if (comma.delimiter != ',')
+                        throw new ArgumentException("Invalid token found in binary function expression, a comma is expected", "tokenStream");
+                    ExpressionAST argument2 = ParseSum(tokenStream);
+                    Token rightParen = tokenStream.Dequeue();
+                    if (rightParen.delimiter != ')')
+                        throw new ArgumentException("Invalid token found in binary function expression, ')' is expected", "tokenStream");
+                    return new ExpressionAST(functionToken, argument1, argument2);
+
+                default:
+                    throw new ArgumentException("Invalid token found after function identifier, '(' is expected", "tokenStream");
+            }
+        }
+        else // must be a var (this is type-checked during token initialization)
+            throw new ArgumentException($"Variable identifier {functionIdentifier} cannot be used as a function identifier", "tokenStream");
+    }
+    static ExpressionAST ParseParenthetical(Queue<Token> tokenStream)
+    {
+        switch (tokenStream.Dequeue())
+        {
+            case { delimiter: '(' }:
+                ExpressionAST expression = ParseSum(tokenStream);
+                Token t = tokenStream.Dequeue();                 
+                switch (t)
+                {
+                    case { delimiter: ')' }:
+                        return expression;
+                    default:
+                        dynamic tval = t.type switch
+                        {
+                            TokenType.Delimiter => t.delimiter,
+                            TokenType.Identifier => t.identifier,
+                            TokenType.Float => t.floatValue,
+                            TokenType.Int => t.intValue,
+                            TokenType.Operator => t.opValue,
+                            _ => null
+                        };
+                        throw new ArgumentException($"Invalid token {tval} in parenthesized expression; ')' is expected.", "tokenStream");
+                }
+            default:
+                throw new ArgumentException("Invalid token in parenthesized expression; '(' is expected.", "tokenStream");
+        }
+    }
+    static ExpressionAST ParseSum(Queue<Token> tokenStream)
+    {
+        ExpressionAST sum = ParseProduct(tokenStream);
+        while (tokenStream.TryPeek(out Token expectedPlusOrMinus))
+        {
+            switch (expectedPlusOrMinus.opValue)
+            {
+                case '+':
+                    tokenStream.Dequeue();
+                    ExpressionAST summand = ParseProduct(tokenStream);
+                    sum = new ExpressionAST(expectedPlusOrMinus, sum, summand);
+                    break;
+
+                case '-':
+                    goto case '+';
+
+                default:
+                    return sum;
+            }
+        }
+
+        return sum;
+    }
+    static ExpressionAST ParseProduct(Queue<Token> tokenStream)
+    {
+        ExpressionAST product = ParseExponent(tokenStream);
+        while (tokenStream.TryPeek(out Token expectedTimesOrDivide))
+        {
+            switch (expectedTimesOrDivide.opValue)
+            {
+                case '*':
+                    tokenStream.Dequeue();
+                    ExpressionAST newFactor = ParseExponent(tokenStream);
+                    product = new ExpressionAST(expectedTimesOrDivide, product, newFactor); // muls and divs are left-associative
+                    break;
+
+                case '/':
+                    goto case '*';
+
+                default:
+                    return product;
+            }
+        }
+
+        return product;
+    }
+    static ExpressionAST ParseExponent(Queue<Token> tokenStream)
+    {
+        ExpressionAST expBase = ParseTerm(tokenStream); 
+        if (tokenStream.TryPeek(out Token expectedCaret))
+        {
+            if (expectedCaret.opValue == '^')
+            {
+                tokenStream.Dequeue();
+                ExpressionAST exponent = ParseExponent(tokenStream); // recursing like this guarantees right-associativity
+                return new ExpressionAST(expectedCaret, expBase, exponent);
+            }
+            else
+                return expBase;
+        }
+        else
+            return expBase;
+    }
+    public static ExpressionAST ParseExpression(string mathExpression)
+    {
+        Queue<Token> tokenStream = LexExpression(mathExpression);
+        return ParseSum(tokenStream);
     }
 }

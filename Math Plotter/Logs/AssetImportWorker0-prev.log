@@ -224,3 +224,84 @@ AssetImportParameters requested are different than current active one (requested
   custom:video-decoder-webm-vp8: 9c59270c3fd7afecdb556c50c9e8de78 -> 
   custom:audio-decoder-ogg-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
   custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+========================================================================
+Received Import Request.
+  Time since last request: 68152.802240 seconds.
+  path: Assets/MathParser.cs
+  artifactKey: Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MathParser.cs using Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '258b56300c4a6a8c7b93f9c781f6a674') in 0.038822 seconds 
+  Import took 0.090633 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 31784.758756 seconds.
+  path: Assets/MathParser.cs
+  artifactKey: Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MathParser.cs using Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'da6d433d8cbc3aa508a34fb6853077da') in 0.008253 seconds 
+  Import took 0.027417 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 1067.701254 seconds.
+  path: Assets/MathParser.cs
+  artifactKey: Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MathParser.cs using Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3bb823ffdac7f9a1fa3fd693fd134090') in 0.002118 seconds 
+  Import took 0.005567 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 1334.836471 seconds.
+  path: Assets/MathParser.cs
+  artifactKey: Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MathParser.cs using Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'bd97d4afc1595a3c0c45143cad7e02af') in 0.002006 seconds 
+  Import took 0.005684 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 12801.921888 seconds.
+  path: Assets/MathParser.cs
+  artifactKey: Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MathParser.cs using Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3c0d3cbf529a3c5e5f1f70a6298fd5a6') in 0.005327 seconds 
+  Import took 0.160786 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 74058.060395 seconds.
+  path: Assets/MathParser.cs
+  artifactKey: Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MathParser.cs using Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '6b4ee201ce2d42b9941dc8cf2f9d9f8d') in 0.005693 seconds 
+  Import took 0.043395 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 2060.129448 seconds.
+  path: Assets/MathParser.cs
+  artifactKey: Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MathParser.cs using Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '8f7f25713e047f89e7666fccae42e25c') in 0.005150 seconds 
+  Import took 0.009649 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 146.209340 seconds.
+  path: Assets/MathParser.cs
+  artifactKey: Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MathParser.cs using Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '7bc95060adf63c529430b9572781b362') in 0.002457 seconds 
+  Import took 0.006151 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 9733.096198 seconds.
+  path: Assets/MathParser.cs
+  artifactKey: Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MathParser.cs using Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '289019add477de8dfe724ac6b294cfde') in 0.001657 seconds 
+  Import took 0.011295 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 65427.124794 seconds.
+  path: Assets/MathParser.cs
+  artifactKey: Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MathParser.cs using Guid(348670292efc67f41a818a41badc0c45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '82d86c424c51acb864ccdf0a285206e9') in 0.005837 seconds 
+  Import took 0.025282 seconds .
+
+AssetImportWorkerClient::OnTransportError - code=2 error=End of file
