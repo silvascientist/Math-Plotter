@@ -311,8 +311,6 @@ public static class MathParser
             }
             public float NodeEval(float x, float z)
             {
-                Debug.Log($"{this.Token.type}");
-                Debug.Log($"{this.Arity}");
                 InvalidOperationException invalidToken = new InvalidOperationException($"Token type {this.Token.type} is not valid for a node of arity {Arity}.");
                 switch (this.Arity)
                 {
@@ -332,7 +330,6 @@ public static class MathParser
                             _ => throw invalidToken,
                         };
                     case 1:
-                        Debug.Log($"{this.Token.floatValue}");
                         Func<float, float> function = unaryFuncExpressions[this.Token.identifier];
                         return function(Operands[0].NodeEval(x, z));
                     case 2:
@@ -340,7 +337,6 @@ public static class MathParser
                         {
                             case TokenType.Operator:
                                 Func<float, float, float> op = operatorExpressions[Token.opValue];
-                                Debug.Log($"{Operands[0].Arity}");
                                 float operand1 = Operands[0].NodeEval(x, z);
                                 float operand2 = Operands[1].NodeEval(x, z);
                                 return op(operand1, operand2);
@@ -446,7 +442,6 @@ public static class MathParser
                 TokenType.Delimiter => t.delimiter, 
                 _ => t.identifier
             };
-            Debug.Log($"{val}, {t.type}");
             root.PrintSubTree();
         }
     }

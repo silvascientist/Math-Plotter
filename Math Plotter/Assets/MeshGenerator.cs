@@ -13,6 +13,9 @@ public class MeshGenerator : MonoBehaviour {
     Vector3[] vertices;
     int[] triangles;
 
+    public string expression;
+    string oldExpression;
+
     public float xMin = 0;
     public float xMax = 20;
     public float zMin = 0;
@@ -20,49 +23,96 @@ public class MeshGenerator : MonoBehaviour {
     public int xSize = 20;
     public int zSize = 20;
 
+    struct State
+    {
+        public string expression;
+        public float xMin;
+        public float xMax;
+        public float zMin;
+        public float zMax;
+        public int xSize;
+        public int zSize;
+
+    }
+
+    State state;
+    State oldState;
+
     // Start is called before the first frame update
     void Start()
     {
+
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
- 
+        expression = "x^2 + z^2";
+
+        state.expression = expression;
+        state.xMin = xMin;
+        state.xMax = xMax;
+        state.zMin = zMin;
+        state.zMax = zMax;
+        state.xSize = xSize;
+        state.zSize = zSize;
+
+        oldState = state;
+
         CreateShape();
         UpdateMesh();
 
-        Debug.Log("Hello, World!");
+        //Debug.Log("Hello, World!");
 
-        Queue<Token> tokenStream = LexExpression("3.14*sin(x^2+z^2)");
-        foreach (Token t in tokenStream)
-        {
-            switch (t.type)
-            {
-                case TokenType.Int:
-                    Debug.Log($"{t.intValue}, Int");
-                    break;
-                case TokenType.Float:
-                    Debug.Log($"{t.floatValue}, Float");
-                    break;
-                case TokenType.Operator:
-                    Debug.Log($"{t.opValue}, Operator");
-                    break;
-                case TokenType.Identifier:
-                    Debug.Log($"{t.identifier}, Identifier");
-                    break;
-                case TokenType.Delimiter:
-                    Debug.Log($"{t.delimiter}, Delimiter");
-                    break;
-            }
-        }
+        //Queue<Token> tokenStream = LexExpression("3.14*sin(x^2+z^2)");
+        //foreach (Token t in tokenStream)
+        //{
+        //    switch (t.type)
+        //    {
+        //        case TokenType.Int:
+        //            Debug.Log($"{t.intValue}, Int");
+        //            break;
+        //        case TokenType.Float:
+        //            Debug.Log($"{t.floatValue}, Float");
+        //            break;
+        //        case TokenType.Operator:
+        //            Debug.Log($"{t.opValue}, Operator");
+        //            break;
+        //        case TokenType.Identifier:
+        //            Debug.Log($"{t.identifier}, Identifier");
+        //            break;
+        //        case TokenType.Delimiter:
+        //            Debug.Log($"{t.delimiter}, Delimiter");
+        //            break;
+        //    }
+        //}
 
-        ExpressionAST expression = ParseExpression("3.14*sin(x^2 + z^2)");
-        float val = expression.ASTeval(1, 1);
-        Debug.Log($"{val}");
+        //ExpressionAST expression = ParseExpression("3.14*sin(x^2 + z^2)");
+        //float val = expression.ASTeval(1, 1);
+        //Debug.Log($"{val}");
         //Debug.Log("Here's the expression tree:");
         //expression.PrintTree();
+    }
+    private void Update()
+    {
+        state.expression = expression;
+        state.xMin = xMin;
+        state.xMax = xMax;
+        state.zMin = zMin;
+        state.zMax = zMax;
+        state.xSize = xSize;
+        state.zSize = zSize;
+
+        if (!state.Equals(oldState))
+        {
+            oldState = state;
+            CreateShape();
+            UpdateMesh();
+        }
     }
 
     void CreateShape()
     {
+        Debug.Log(expression);
+        ExpressionAST expressionTree = ParseExpression(expression);
+
         int xPts = xSize + 1;
         int zPts = zSize + 1;
         vertices = new Vector3[xPts*zPts];
@@ -73,7 +123,7 @@ public class MeshGenerator : MonoBehaviour {
             {
                 float x = xMin + k*(xMax - xMin)/xPts;
                 float z = zMin + j*(zMax - zMin)/zPts; 
-                float y = 2 * (float) Sin(x*x/5 + z*z/5); 
+                float y = expressionTree.ASTeval(x,z);
                 vertices[i] = new Vector3(x,y,z);
                 i++; 
             }
