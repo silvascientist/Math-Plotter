@@ -158,6 +158,18 @@ public static class MathParser
             else
                 throw new ArgumentException($"Token type {type} does not hold a string.", "tType");
         }
+
+        public dynamic DynamicValue() // primarily for debugging purposes
+        {
+            return type switch
+            {
+                TokenType.Operator => opValue,
+                TokenType.Int => intValue,
+                TokenType.Float => floatValue,
+                TokenType.Delimiter => delimiter,
+                _ => identifier
+            };
+        }
     }
 
     public static Queue<Token> LexExpression(string mathExpression)
@@ -192,6 +204,7 @@ public static class MathParser
             else
                 throw new ArgumentException("Invalid or misplaced character found in expression.", "mathExpression");
             tokenStream.Enqueue(token);
+            Debug.Log($"{token.DynamicValue()}, {token.type}");
         }
         return tokenStream;
     }
@@ -243,10 +256,7 @@ public static class MathParser
     }
     static Token LexIdentifier(Queue<char> textStream)
     {
-        string tokenString = textStream.Dequeue().ToString();
-
-        // As above, we peek here to ensure we don't dequeue
-        // a char belonging to the next token
+        string tokenString = "";
         char currChar = textStream.Peek();
         while (((currChar >= 'a' && currChar <= 'z') || (currChar >= '0' && currChar <= '9')) && textStream.Count > 0)
         {
@@ -261,12 +271,6 @@ public static class MathParser
     }
     public class ExpressionAST
     {
-        /*****
-         * For a bottom-up approach, which we will pursue for now, it's fine to encode the arity of a node
-         * as a property calculated from the length of the list of operands, as lower-level nodes are built up
-         * before higher-level nodes are built. For a top-down parser, we would want more freedom to define the arity
-         * without all nodes having been previously constructed.
-         *****/
         class TreeNode
         {
             public Token Token { get; }
@@ -392,7 +396,7 @@ public static class MathParser
             public void PrintSubTree()
             {
                 foreach (TreeNode node in Operands)
-                    {
+                {
                     Token t = node.Token;
                     dynamic val = t.type switch
                     {

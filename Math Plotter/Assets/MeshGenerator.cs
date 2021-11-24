@@ -61,7 +61,7 @@ public class MeshGenerator : MonoBehaviour {
 
         //Debug.Log("Hello, World!");
 
-        //Queue<Token> tokenStream = LexExpression("3.14*sin(x^2+z^2)");
+        //Queue<Token> tokenStream = LexExpression("32*x^3/(x^2 + z^2) - 16*x^5/(x^2 + z^2)^2 - 14*x");
         //foreach (Token t in tokenStream)
         //{
         //    switch (t.type)
@@ -84,11 +84,11 @@ public class MeshGenerator : MonoBehaviour {
         //    }
         //}
 
-        //ExpressionAST expression = ParseExpression("3.14*sin(x^2 + z^2)");
-        //float val = expression.ASTeval(1, 1);
+        //ExpressionAST expression1 = ParseExpression("32*x^3/(x^2 + z^2) - 16*x^5/(x^2 + z^2)^2 - 14*x");
+        //float val = expression1.ASTeval(1, 1);
         //Debug.Log($"{val}");
         //Debug.Log("Here's the expression tree:");
-        //expression.PrintTree();
+        //expression1.PrintTree();
     }
     private void Update()
     {
